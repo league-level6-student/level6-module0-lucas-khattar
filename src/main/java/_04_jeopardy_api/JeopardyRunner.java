@@ -10,8 +10,6 @@ public class JeopardyRunner {
     public static void main(String[] args) {
 
         JeopardyApi jeopardyApi = new JeopardyApi();
-        Clue clue = new Clue();
-        Category category = new Category();
      
         //1. Create a score variable
         int score = 0;
@@ -23,11 +21,10 @@ public class JeopardyRunner {
         	//3. If i == 700 or i == 900, continue;
             //there are no questions for these values
         	if(i ==700||i==900) {
-        		
+        		continue;
         	}
         	//4. Call the getClue() method with i
-        	jeopardyApi.getClue(i);
-        
+        	Clue clue = jeopardyApi.getClue(i);
 
             //5. Save the question in a String variable
         	String question = clue.getQuestion();
@@ -35,10 +32,11 @@ public class JeopardyRunner {
         	String answer = clue.getAnswer();
             //7. Save the title in a String variable
             //note that this is part of the Category object
-        	String title = category.getTitle();
+        	String title = clue.getCategory().getTitle();
             //8. Use a JOptionPane to display the question.
             //You can set the title of the JOptionPane to the question title.
-        	String input = JOptionPane.showInputDialog(null, title);
+        	System.out.println(answer);
+        	String input = JOptionPane.showInputDialog(null, question, title, JOptionPane.INFORMATION_MESSAGE);
             //9. If they got the question correct, add the value of that question to their score
         	if(input.equals(answer)) {
         		score += clue.getValue();
