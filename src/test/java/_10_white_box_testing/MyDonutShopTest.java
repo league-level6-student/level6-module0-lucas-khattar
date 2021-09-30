@@ -16,37 +16,59 @@ import static org.mockito.Mockito.*;
 class MyDonutShopTest {
 
     MyDonutShop myDonutShop;
+    
+    @Mock
+    PaymentService paymentService;
+    
+    @Mock
+    DeliveryService deliveryService;
+
+    @Mock
+    BakeryService bakeryService;
+    
+    @Mock
+    Order order;
 
     @BeforeEach
     void setUp() {
-
+    	MockitoAnnotations.openMocks(this);
+    	myDonutShop = new MyDonutShop(paymentService, deliveryService, bakeryService);
     }
 
     @Test
     void itShouldTakeDeliveryOrder() throws Exception {
         //given
+    	when(paymentService.charge(order)).thenReturn(true);
+    	when(order.isDelivery()).thenReturn(true);
 
         //when
-
+    	myDonutShop.openForTheDay();
+    	myDonutShop.takeOrder(order);
         //then
+    	verify(deliveryService, times(1)).scheduleDelivery(order);
     }
 
     @Test
     void givenInsufficientDonutsRemaining_whenTakeOrder_thenThrowIllegalArgumentException() {
         //given
-
+    	when(bakeryService.getDonutsRemaining()).thenReturn(9);
+    	when(order.getNumberOfDonuts()).thenReturn(12);
         //when
-
+    	myDonutShop.openForTheDay();
         //then
+    	Throwable exceptionThrown = assertThrows(Exception.class, () -> myDonutShop.takeOrder(order));
+    	assertEquals(exceptionThrown.getMessage(), "Insufficient donuts remaining");
+    	verify(paymentService, never()).charge(order);
     }
 
     @Test
     void givenNotOpenForBusiness_whenTakeOrder_thenThrowIllegalStateException(){
-        //given
-
+        //given   	
         //when
-
         //then
+    	Throwable exceptionThrown = assertThrows(Exception.class, () -> myDonutShop.takeOrder(order));
+    	assertEquals(exceptionThrown.getMessage(), "Sorry we're currently closed");
+    	verify(paymentService, never()).charge(order);
     }
 
 }
